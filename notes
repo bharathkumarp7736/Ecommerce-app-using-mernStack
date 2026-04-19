@@ -1,0 +1,16 @@
+create backend folder
+create frontend folder
+npm init -y
+npm i express
+npm i nodemon
+npm i dotenv
+npm i validator
+npm create vite@latest .
+npm install tailwindcss @tailwindcss/vite
+npm i react-router-dom
+npm i lucide-react
+npm i react-hot-toast
+npm i @reduxjs/toolkit react-redux
+npm i axios
+npm i express-fileupload
+npm i cloudinary

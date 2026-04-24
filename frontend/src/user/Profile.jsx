@@ -35,8 +35,10 @@ const Profile = () => {
                         <p className='text-xl font-bold text-gray-700'>{user?.email}</p>
                     </div>
                 </div>
-                <div className='w-full mt-8'>
+                <div className='w-full mt-8 flex gap-4 flex-col sm:flex-row '>
                     <Link to='/profile/update' className='w-full flex justify-center py-3 px-4 font-bold text-gray-100 border border-transparent rounded-xl shadow-md shadow-blue-300 text-sm bg-blue-400 hover:blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all active:scale-[0.98]'>Edit Profile</Link>
+
+                    <Link to='/password/update' className='w-full flex justify-center py-3 px-4 font-bold text-gray-100 border border-transparent rounded-xl shadow-md shadow-blue-300 text-sm bg-blue-400 hover:blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all active:scale-[0.98]'>Change Password</Link>
                 </div>
             </div>
         </div>

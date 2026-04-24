@@ -5,6 +5,7 @@ import user from './routes/userRoute.js';
 import order from "./routes/orderRoute.js";
 import cookieParser from 'cookie-parser';
 import fileUpload from 'express-fileupload';
+import paymentRoute from './routes/paymentRoute.js';
 const app = express();
 
 app.use(express.json());
@@ -14,6 +15,7 @@ app.use(fileUpload());
 app.use("/api/v1/",product)
 app.use("/api/v1/",user)
 app.use("/api/v1/",order)
+app.use("/api/v1", paymentRoute);
 //Error Handler
 app.use(handleError)
 export default app;

@@ -1,8 +1,18 @@
 import React, { useState } from 'react'
 import {Link} from 'react-router-dom'
 import Rating from './Rating'
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../features/products/cart/cartSlice';
+import toast from 'react-hot-toast';
 const Product = ({product}) => {
     const [rating, setRating]=useState(product.rating || 0);
+    const dispatch =useDispatch()
+    
+
+    const addToCartHandler = () => {
+  dispatch(addToCart({ id: product._id, quantity: 1 }));
+  toast.success("Added to cart");
+};
   return (
     <div className='bg-blue-200 rounded-xl shadow-sm hover:shadow-lg transition overflow-hidden border border-blue-500'>
         <Link to={`/product/${product._id}`} className='group block'>
@@ -22,7 +32,11 @@ const Product = ({product}) => {
             </div>
             <div className='flex items-center justify-between'>
                 <span className='text-blue-500 font-bold text-lg '>₹{product.price}</span>
-                <button className='bg-blue-500 text-gray-300 px-4 py-1.5 rounded-md text-sm hover:bg-blue-400 transition cursor-pointer'>Add to Cart</button>
+                <button 
+                disabled={product.stock === 0}
+                onClick={addToCartHandler}
+                className='bg-blue-500 text-gray-300 px-4 py-1.5 rounded-md text-sm hover:bg-blue-400 transition cursor-pointer'>
+                    Add to Cart</button>
             </div>
         </div>
     </div>

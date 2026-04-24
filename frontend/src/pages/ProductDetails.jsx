@@ -23,9 +23,11 @@ import { calculateDiscount, formatDate } from "../utils/Formater";
 import { addToCart, removeMessage } from "../features/products/cart/cartSlice";
 import axios from "axios";
 
+const API = "https://ecommerce-app-using-mernstack.onrender.com";
+
 const ProductDetails = () => {
   const [userRating, setUserRating] = useState(0);
-  const [comment, setComment] = useState(""); // ✅ added
+  const [comment, setComment] = useState("");
   const [quantity, setQuantity] = useState(1);
 
   const { loading, error, product } = useSelector((state) => state.product);
@@ -45,7 +47,6 @@ const ProductDetails = () => {
     }
   }, [dispatch, id]);
 
-  // error
   useEffect(() => {
     if (error) {
       toast.error(error);
@@ -53,7 +54,6 @@ const ProductDetails = () => {
     }
   }, [error, dispatch]);
 
-  // cart success
   useEffect(() => {
     if (success) {
       toast.success(message);
@@ -61,7 +61,6 @@ const ProductDetails = () => {
     }
   }, [success, message, dispatch]);
 
-  // quantity
   const increaseQuantity = () => {
     if (product.stock <= quantity) {
       toast.error("cannot exceed available stock");
@@ -82,7 +81,6 @@ const ProductDetails = () => {
     dispatch(addToCart({ id, quantity }));
   };
 
-  // ✅ REVIEW SUBMIT LOGIC
   const submitReviewHandler = async (e) => {
     e.preventDefault();
 
@@ -97,7 +95,7 @@ const ProductDetails = () => {
     }
 
     try {
-      const { data } = await axios.put("/api/v1/review", {
+      const { data } = await axios.put(`${API}/api/v1/review`, {
         rating: userRating,
         comment,
         productId: id,
@@ -108,7 +106,6 @@ const ProductDetails = () => {
       setUserRating(0);
       setComment("");
 
-      // refresh product
       dispatch(getProductDetails(id));
     } catch (error) {
       toast.error(error.response?.data?.message || "Review failed");

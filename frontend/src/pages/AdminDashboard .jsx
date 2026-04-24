@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const API = "https://ecommerce-app-using-mernstack.onrender.com";
+
 const AdminDashboard = () => {
   const [tab, setTab] = useState("dashboard");
 
@@ -8,14 +10,14 @@ const AdminDashboard = () => {
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
 
-  // ✅ NEW STATE FOR REVIEWS
+  //  NEW STATE FOR REVIEWS
   const [productId, setProductId] = useState("");
   const [reviews, setReviews] = useState([]);
 
   // ================= FETCH =================
   const fetchOrders = async () => {
     try {
-      const { data } = await axios.get("/api/v1/admin/orders");
+      const { data } = await axios.get(`${API}/api/v1/admin/orders`);
       setOrders(data.orders);
     } catch (err) {
       console.log(err);
@@ -24,7 +26,7 @@ const AdminDashboard = () => {
 
   const fetchProducts = async () => {
     try {
-      const { data } = await axios.get("/api/v1/admin/products");
+      const { data } = await axios.get(`${API}/api/v1/admin/products`);
       setProducts(data.products);
     } catch (err) {
       console.log(err);
@@ -33,7 +35,7 @@ const AdminDashboard = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data } = await axios.get("/api/v1/admin/users");
+      const { data } = await axios.get(`${API}/api/v1/admin/users`);
       setUsers(data.users);
     } catch (err) {
       console.log(err);
@@ -49,7 +51,7 @@ const AdminDashboard = () => {
   // ================= ORDER =================
   const updateOrder = async (id, status) => {
     try {
-      await axios.put(`/api/v1/admin/order/update/${id}`, { status });
+      await axios.put(`${API}/api/v1/admin/order/update/${id}`, { status });
       fetchOrders();
     } catch (err) {
       alert(err.response?.data?.message);
@@ -58,7 +60,7 @@ const AdminDashboard = () => {
 
   const deleteOrder = async (id) => {
     try {
-      await axios.delete(`/api/v1/admin/order/${id}`);
+      await axios.delete(`${API}/api/v1/admin/order/${id}`);
       fetchOrders();
     } catch (err) {
       console.log(err);
@@ -68,7 +70,7 @@ const AdminDashboard = () => {
   // ================= PRODUCT =================
   const deleteProduct = async (id) => {
     try {
-      await axios.delete(`/api/v1/admin/product/${id}`);
+      await axios.delete(`${API}/api/v1/admin/product/${id}`);
       fetchProducts();
     } catch (err) {
       console.log(err);
@@ -78,7 +80,7 @@ const AdminDashboard = () => {
   // ================= USER =================
   const deleteUser = async (id) => {
     try {
-      await axios.delete(`/api/v1/admin/user/${id}`);
+      await axios.delete(`${API}/api/v1/admin/user/${id}`);
       fetchUsers();
     } catch (err) {
       console.log(err);
@@ -87,7 +89,7 @@ const AdminDashboard = () => {
 
   const updateUserRole = async (id, role) => {
     try {
-      await axios.put(`/api/v1/admin/user/${id}`, { role });
+      await axios.put(`${API}/api/v1/admin/user/${id}`, { role });
       fetchUsers();
     } catch (err) {
       console.log(err);
@@ -100,7 +102,7 @@ const AdminDashboard = () => {
 
     try {
       const { data } = await axios.get(
-        `/api/v1/admin/reviews?id=${productId}`
+        `${API}/api/v1/admin/reviews?id=${productId}`
       );
       setReviews(data.reviews);
     } catch (err) {
@@ -111,7 +113,7 @@ const AdminDashboard = () => {
   const deleteReview = async (reviewId) => {
     try {
       await axios.delete(
-        `/api/v1/admin/reviews?id=${reviewId}&productId=${productId}`
+        `${API}/api/v1/admin/reviews?id=${reviewId}&productId=${productId}`
       );
       fetchReviews();
     } catch (err) {

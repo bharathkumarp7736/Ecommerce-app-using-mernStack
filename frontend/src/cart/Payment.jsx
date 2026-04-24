@@ -3,6 +3,8 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+const API = "https://ecommerce-app-using-mernstack.onrender.com";
+
 const Payment = () => {
   const navigate = useNavigate();
 
@@ -37,12 +39,12 @@ const Payment = () => {
 
     try {
       // 👉 create order from backend
-      const { data } = await axios.post("/api/v1/payment/create", {
+      const { data } = await axios.post(`${API}/api/v1/payment/create`, {
         amount: totalAmount,
       });
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // from .env
+        key: import.meta.env.REACT_APP_VITE_RAZORPAY_KEY_ID, // from .env
         amount: data.order.amount,
         currency: "INR",
         name: "Shopping Hub",
@@ -51,10 +53,10 @@ const Payment = () => {
 
         handler: async function (response) {
           // 🔥 verify payment
-          await axios.post("/api/v1/payment/verify", response);
+          await axios.post(`${API}/api/v1/payment/verify`, response);
 
           // 🔥 create order after payment
-          await axios.post("/api/v1/new/order", {
+          await axios.post(`${API}/api/v1/new/order`, {
             shippingAddress: shippingInfo,
             orderItems: cartItems,
             totalPrice: totalAmount,

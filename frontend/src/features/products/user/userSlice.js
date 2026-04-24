@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const API = "https://ecommerce-app-using-mernstack.onrender.com";
+
 // register api
 export const register = createAsyncThunk(
   "user/register",
@@ -11,7 +13,7 @@ export const register = createAsyncThunk(
           "Content-Type": "multipart/form-data",
         },
       };
-      const { data } = await axios.post("/api/v1/register", userData, config);
+      const { data } = await axios.post(`${API}/api/v1/register`, userData, config);
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -26,7 +28,7 @@ export const loadUser = createAsyncThunk(
   "user/loadUser",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get("/api/v1/profile");
+      const { data } = await axios.get(`${API}/api/v1/profile`);
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -48,7 +50,7 @@ export const login = createAsyncThunk(
       };
 
       const { data } = await axios.post(
-        "/api/v1/login",
+        `${API}/api/v1/login`,
         { email, password },
         config,
       );
@@ -67,7 +69,7 @@ export const logout = createAsyncThunk(
   "user/logout",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get("/api/v1/logout");
+      const { data } = await axios.get(`${API}/api/v1/logout`);
       return data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to logout");
@@ -86,7 +88,7 @@ export const updateProfile = createAsyncThunk(
         },
       };
       const { data } = await axios.put(
-        "/api/v1/profile/update",
+        `${API}/api/v1/profile/update`,
         userData,
         config,
       );
@@ -108,7 +110,7 @@ export const updatePassword = createAsyncThunk(
         },
       };
       const { data } = await axios.put(
-        "/api/v1/password/update",
+        `${API}/api/v1/password/update`,
         password,
         config,
       );
@@ -130,7 +132,7 @@ export const forgotPassword = createAsyncThunk(
         },
       };
       const { data } = await axios.post(
-        "/api/v1/password/forgot",
+        `${API}/api/v1/password/forgot`,
         { email },
         config,
       );
@@ -153,7 +155,7 @@ export const resetPassword = createAsyncThunk(
       };
 
       const { data } = await axios.post(
-        `/api/v1/reset/${token}`,
+        `${API}/api/v1/reset/${token}`,
         userData,
         config,
       );
@@ -360,5 +362,6 @@ const userSlice = createSlice({
       });
   },
 });
+
 export const { removeErrors, removeSuccess } = userSlice.actions;
 export default userSlice.reducer;

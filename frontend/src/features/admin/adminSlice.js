@@ -1,12 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const API = "https://ecommerce-app-using-mernstack.onrender.com";
+
 /* ================= PRODUCTS ================= */
 export const getAdminProducts = createAsyncThunk(
   "admin/getProducts",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get("/api/v1/admin/products");
+      const { data } = await axios.get(`${API}/api/v1/admin/products`);
       return data.products;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -19,7 +21,7 @@ export const getAdminOrders = createAsyncThunk(
   "admin/getOrders",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get("/api/v1/admin/orders");
+      const { data } = await axios.get(`${API}/api/v1/admin/orders`);
       return data.orders;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -31,7 +33,7 @@ export const updateOrderStatus = createAsyncThunk(
   "admin/updateOrder",
   async ({ id, status }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put(`/api/v1/admin/order/update/${id}`, {
+      const { data } = await axios.put(`${API}/api/v1/admin/order/update/${id}`, {
         status,
       });
       return data;
@@ -45,7 +47,7 @@ export const deleteOrder = createAsyncThunk(
   "admin/deleteOrder",
   async (id, { rejectWithValue }) => {
     try {
-      const { data } = await axios.delete(`/api/v1/admin/order/${id}`);
+      const { data } = await axios.delete(`${API}/api/v1/admin/order/${id}`);
       return { id, message: data.message };
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -58,7 +60,7 @@ export const getAdminUsers = createAsyncThunk(
   "admin/getUsers",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get("/api/v1/admin/users");
+      const { data } = await axios.get(`${API}/api/v1/admin/users`);
       return data.users;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);

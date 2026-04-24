@@ -1,10 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+const API = "https://ecommerce-app-using-mernstack.onrender.com";
+
 //get data
 export const getProduct = createAsyncThunk(
   "product/getProduct",
-  async ({ keyword, page = 1,category }, { rejectWithValue }) => {
+  async ({ keyword, page = 1, category }, { rejectWithValue }) => {
     //for-data     for-error
     try {
       // const link="/api/v1/products"
@@ -12,12 +14,12 @@ export const getProduct = createAsyncThunk(
       //   ? `/api/v1/products?keyword=${encodeURIComponent(keyword)}&page=${page}`
       //   : `/api/v1/products?page=${page}`;
 
-      let link="/api/v1/products?page=" + page;
-      if(category){
-        link+=`&category=${category}`;
+      let link = `${API}/api/v1/products?page=` + page;
+      if (category) {
+        link += `&category=${category}`;
       }
-      if(keyword){
-        link+=`&keyword=${keyword}`;
+      if (keyword) {
+        link += `&keyword=${keyword}`;
       }
 
       const { data } = await axios.get(link);
@@ -36,7 +38,7 @@ export const getProductDetails = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     //for-data     for-error
     try {
-      const link = `/api/v1/product/${id}`;
+      const link = `${API}/api/v1/product/${id}`;
       const { data } = await axios.get(link);
       // console.log(data);
       return data;
@@ -56,8 +58,8 @@ const productSlice = createSlice({
     loading: false,
     error: null,
     product: null,
-    resultPerPage : 1000,
-    totalPages : 0,
+    resultPerPage: 1000,
+    totalPages: 0,
   },
   reducers: {
     removeErrors: (state) => {
@@ -76,12 +78,12 @@ const productSlice = createSlice({
         state.error = null;
         state.products = action.payload.products;
         state.productCount = action.payload.productCount;
-        state.resultPerPage=action.payload.resultPerPage;
-        state.totalPages=action.payload.totalPages;
+        state.resultPerPage = action.payload.resultPerPage;
+        state.totalPages = action.payload.totalPages;
       })
       .addCase(getProduct.rejected, (state, action) => {
         state.loading = false;
-        state.product=[];
+        state.product = [];
         state.error = action.payload || "Something went wrong...!";
       });
 
@@ -102,5 +104,6 @@ const productSlice = createSlice({
       });
   },
 });
+
 export const { removeErrors } = productSlice.actions;
 export default productSlice.reducer;

@@ -56,20 +56,29 @@ export const registerUser = async (req, res, next) => {
 //login user
 export const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
+
+  // check empty fields
   if (!email || !password) {
     return next(new handleError("Please enter all fields", 400));
   }
+
   const user = await User.findOne({ email }).select("+password");
+
+  // invalid email OR password
   if (!user) {
     return next(new handleError("Invalid email or password", 401));
   }
+
   const isValidPassword = await user.verifyPassword(password);
+
   if (!isValidPassword) {
     return next(new handleError("Invalid email or password", 401));
   }
 
   sendToken(user, 200, res);
 };
+
+
 //logout user
 export const logout = async (req, res, next) => {
   const options = {
@@ -113,11 +122,69 @@ export const forgotPassword = async (req, res, next) => {
 
   const resetPasswordUrl = `${req.protocol}://${req.host}/reset/${resetToken}`;
   const message = `Your password reset token is: ${resetPasswordUrl}. If you did not request this, please ignore this email.`;
+  const messageHTML = `
+<div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px; margin:0;">
+
+  <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    
+    <h2 style="color: #333333; margin-bottom: 10px;">
+      🔐 Password Reset Request
+    </h2>
+
+    <p style="color: #666666; font-size: 15px; line-height: 1.6;">
+      You requested to reset your password. Click the button below to continue.
+    </p>
+
+    <div style="text-align: center; margin: 25px 0;">
+      <a href="${resetPasswordUrl}"
+        style="
+          display: inline-block;
+          background-color: #007bff;
+          color: #ffffff;
+          text-decoration: none;
+          padding: 12px 24px;
+          border-radius: 6px;
+          font-weight: bold;
+          font-size: 15px;
+        ">
+        Reset Password
+      </a>
+    </div>
+
+    <p style="color:#666666; font-size:14px;">
+      If the button doesn't work, copy and paste this link:
+    </p>
+
+    <p style="word-break: break-all;">
+      <a href="${resetPasswordUrl}" style="color:#007bff; font-size:14px;">
+        ${resetPasswordUrl}
+      </a>
+    </p>
+
+    <p style="color:#999999; font-size:13px; margin-top:20px;">
+      ⏳ This link will expire in 15 minutes.
+    </p>
+
+    <p style="color:#999999; font-size:13px;">
+      If you did not request this, you can safely ignore this email.
+    </p>
+
+    <hr style="border:none; border-top:1px solid #eeeeee; margin:25px 0;" />
+
+    <p style="text-align:center; color:#aaaaaa; font-size:12px;">
+      © ${new Date().getFullYear()} Shopping Hub. All rights reserved.
+    </p>
+
+  </div>
+
+</div>
+`;
   try {
     await sendEmail({
       email: user.email,
       subject: "Password Reset",
       message,
+      messageHTML: messageHTML,
     });
     res.status(200).json({
       success: true,

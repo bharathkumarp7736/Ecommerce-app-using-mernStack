@@ -6,7 +6,7 @@ const router = express.Router();
 router.route("/new/order").post(verifyUser,createNewOrder);
 router.route("/order/:id").get(verifyUser,getOrderDetails);
 router.route("/orders/user").get(verifyUser,getAllOrders);
-
+router.route("/order/cancel/:id").put(verifyUser, updateOrderStatus);
 
 //admin side
 router.route("/admin/orders").get(verifyUser,rollBasedAccess("admin"),getAllOrdersByAdmin);

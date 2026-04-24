@@ -20,177 +20,235 @@ import {
 } from "../features/products/productSlice";
 import toast from "react-hot-toast";
 import { calculateDiscount, formatDate } from "../utils/Formater";
+import { addToCart, removeMessage } from "../features/products/cart/cartSlice";
+import axios from "axios";
 
 const ProductDetails = () => {
   const [userRating, setUserRating] = useState(0);
+  const [comment, setComment] = useState(""); // ✅ added
+  const [quantity, setQuantity] = useState(1);
+
   const { loading, error, product } = useSelector((state) => state.product);
+  const {
+    loading: cartLoading,
+    error: cartError,
+    success,
+    message,
+  } = useSelector((state) => state.cart);
+
   const { id } = useParams();
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (id) {
       dispatch(getProductDetails(id));
     }
   }, [dispatch, id]);
 
+  // error
   useEffect(() => {
     if (error) {
-      toast.error(error.message);
+      toast.error(error);
       dispatch(removeErrors());
     }
-  }, [dispatch, error]);
+  }, [error, dispatch]);
+
+  // cart success
+  useEffect(() => {
+    if (success) {
+      toast.success(message);
+      dispatch(removeMessage());
+    }
+  }, [success, message, dispatch]);
+
+  // quantity
+  const increaseQuantity = () => {
+    if (product.stock <= quantity) {
+      toast.error("cannot exceed available stock");
+      return;
+    }
+    setQuantity(quantity + 1);
+  };
+
+  const decreaseQuantity = () => {
+    if (quantity <= 1) {
+      toast.error("quantity cannot be less than 1");
+      return;
+    }
+    setQuantity(quantity - 1);
+  };
+
+  const addToCartHandler = () => {
+    dispatch(addToCart({ id, quantity }));
+  };
+
+  // ✅ REVIEW SUBMIT LOGIC
+  const submitReviewHandler = async (e) => {
+    e.preventDefault();
+
+    if (userRating === 0) {
+      toast.error("Please select rating");
+      return;
+    }
+
+    if (!comment.trim()) {
+      toast.error("Please write comment");
+      return;
+    }
+
+    try {
+      const { data } = await axios.put("/api/v1/review", {
+        rating: userRating,
+        comment,
+        productId: id,
+      });
+
+      toast.success(data.message);
+
+      setUserRating(0);
+      setComment("");
+
+      // refresh product
+      dispatch(getProductDetails(id));
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Review failed");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-blue-200 ">
       <PageTitle title={`${product?.name} | Details`} />
       <Navbar />
+
       <main className="max-w-7xl mx-auto px-4 py-8 md:py-12 ">
         {/* product section */}
         <div className="grid grid-cols-1 md:grid-cols-2 bg-blue-300 p-8">
-          {/* image gallery */}
+          {/* image */}
           <div>
-            <div className="aspect-square overflow-hidden rounded-xl">
-              <img
-                className="w-full h-full object-cover transition-transform hover:scale-105 duration-700 cursor-pointer"
-                title={`${product?.name}`}
-                src={product?.image[0].url}
-                alt={`${product?.name}`}
-              />
-            </div>
+            <img
+              className="w-full h-full object-cover"
+              src={product?.image?.[0]?.url}
+              alt={product?.name}
+            />
           </div>
+
           {/* product info */}
-          <div className="flex flex-col ml-10 mt-10 sm:mt-10 md:mt-0  ">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-2">
-              {`${product?.name}`}
-            </h2>
-            <div className="flex items-center gap-4 mb-4">
-              <Rating value={product?.rating} disabled={true} />
-              <span className="text-sm text-gray-500 font-medium">
-                {product?.numOfReviews} Verified Reviews
-              </span>
+          <div className="ml-10 mt-10 md:mt-0">
+            <h2 className="text-3xl font-semibold">{product?.name}</h2>
+
+            <div className="flex items-center gap-4">
+              <Rating value={product?.rating} disabled />
+              <span>{product?.numOfReviews} Reviews</span>
             </div>
-            <div className="mb-6 flex items-baseline gap-3">
-              <span className="text-4xl font-semibold text-amber-600">
-                ₹ {product?.price}
+
+            <div className="mt-4">
+              <span className="text-3xl text-amber-600">
+                ₹{product?.price}
               </span>
-              <span className="text-lg text-gray-600 line-through ">
-                ₹ {product?.mrp}
+              <span className="line-through ml-3">
+                ₹{product?.mrp}
               </span>
-              <span className="text-sm font-bold text-green-600 bg-green-50 px-2 py-1 rounded">
+              <span className="text-green-600 ml-2">
                 {calculateDiscount(product?.price, product?.mrp)}% OFF
               </span>
             </div>
-            <p className="text-gray-600 leading-relaxed mb-8 text-lg">
-              {`${product?.description}`}
-            </p>
-            <div className="border-t border-gray-100 pt-8 mb-8">
-              <div className="flex items-center gap-2 mb-6">
-                {product?.stock > 1 ? (
-                  <>
-                    <PackageCheck className="text-green-600 w-5 h-5" />
-                    <span className="font-semibold text-green-700 text-sm">
-                      In Stock ({product?.stock} Avaliable)
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <PackageX className="text-red-600 w-5 h-5" />
-                    <span className="font-semibold text-red-700 text-sm">
-                      OUt of Stock
-                    </span>
-                  </>
-                )}
-              </div>
-              {product?.stock > 0 && (
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex items-center border-2 border-blue-500 rounded-xl bg-blue-200 overflow-hidden">
-                    <button className="p-2 hover:bg-blue-500 hover:text-amber-600 transition-colors ">
-                      <Minus size={18} />
-                    </button>
-                    <span className="w-10 text-center font-bold text-gray-800 ">
-                      1
-                    </span>
-                    <button className="p-2 hover:bg-blue-500 hover:text-amber-600 transition-colors ">
-                      <Plus size={18} />
-                    </button>
-                  </div>
-                  <button className="flex-1 bg-blue-500 hover:bg-blue-400 text-gray-300 font-bold py-2 px-8 rounded-xl  flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-200 active:scale-95 cursor-pointer hover:scale-90">
-                    <ShoppingCart /> Add to Cart
+
+            <p className="mt-4">{product?.description}</p>
+
+            {/* stock */}
+            {product?.stock > 0 ? (
+              <p className="text-green-600">In Stock</p>
+            ) : (
+              <p className="text-red-600">Out of Stock</p>
+            )}
+
+            {/* cart */}
+            {product?.stock > 0 && (
+              <div className="flex gap-4 mt-6">
+                <div className="flex border rounded">
+                  <button onClick={decreaseQuantity}>
+                    <Minus />
+                  </button>
+                  <span className="px-3 items-center justify-center flex">{quantity}</span>
+                  <button onClick={increaseQuantity}>
+                    <Plus />
                   </button>
                 </div>
-              )}
-            </div>
-            {/* review form */}
-            <form className="bg-green-50  p-6 rounded-2xl border border-blue-500">
-              <h3 className="flex gap-2 font-bold mb-4 items-center text-md  text-gray-700 uppercase tracking-tight">
-                <MessageSquare className="text-amber-500" size={18} /> Share
-                your feedback
+
+                <button
+                  onClick={addToCartHandler}
+                  className="bg-blue-500 text-white px-6 py-2 rounded"
+                >
+                  {cartLoading ? "Adding..." : "Add to Cart"}
+                </button>
+              </div>
+            )}
+
+            {/* ✅ REVIEW FORM (UI SAME, only logic added) */}
+            <form
+              onSubmit={submitReviewHandler}
+              className="bg-green-50 p-6 rounded-2xl border border-blue-500 mt-10"
+            >
+              <h3 className="flex gap-2 font-bold mb-4 items-center text-md text-gray-700 uppercase tracking-tight">
+                <MessageSquare size={18} />
+                Share your feedback
               </h3>
+
               <div className="mb-4">
                 <Rating
-                  value={0}
+                  value={userRating}
                   disabled={false}
                   onRatingChange={(r) => setUserRating(r)}
                 />
               </div>
+
               <textarea
-                className="w-full bg-gray-200 p-4 rounded-xl border-2 border-blue-500 focus:border-amber-400 focus:ring-0 min-h-24 text-sm shadow-sm transition-all "
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full bg-gray-200 p-4 rounded-xl border-2 border-blue-500 min-h-24"
                 placeholder="How was the product and delivery?"
-              ></textarea>
-              <button className="mt-4 w-full bg-blue-500 text-gray-200 py-3 rounded-xl font-bold hover:bg-blue-400 transition-all shadow-lg shadow-gray-200 cursor-pointer">
+              />
+
+              <button
+                type="submit"
+                className="mt-4 w-full bg-blue-500 text-gray-200 py-3 rounded-xl font-bold"
+              >
                 Post Review
               </button>
             </form>
           </div>
         </div>
-        {/* customer review */}
+
+        {/* reviews */}
         <section className="mt-20">
-  <div className="mb-10">
-    <h3 className="text-2xl font-bold text-gray-900 border-l-4 border-amber-500 pl-4">
-      Customer Stories
-    </h3>
-  </div>
+          <h3 className="text-2xl font-bold mb-6">
+            Customer Stories
+          </h3>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-    {product?.reviews.map((rev, index) => (
-      <div
-        key={index}
-        className="bg-blue-300 p-8 rounded-2xl shadow-sm border border-gray-100 hover:border-amber-200 transition-colors group cursor-pointer"
-      >
-        {/* Top Section */}
-        <div className="flex items-center gap-4 mb-6">
-          {/* Avatar */}
-          <div className="rounded-full w-14 h-14 overflow-hidden ring-2 ring-gray-50 group-hover:ring-amber-300 transition-all">
-            <img
-              src={rev?.avatar}
-              alt={rev?.name}
-              className="w-full h-full object-cover"
-            />
+          <div className="grid md:grid-cols-2 gap-8">
+            {product?.reviews?.map((rev, index) => (
+              <div key={index} className="bg-blue-300 p-6 rounded">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={rev.avatar}
+                    className="w-12 h-12 rounded-full"
+                  />
+                  <div>
+                    <p>{rev.name}</p>
+                    <Rating value={rev.rating} disabled />
+                  </div>
+                </div>
+
+                <p className="mt-3">{rev.comment}</p>
+                <p className="text-sm text-gray-500">
+                  {formatDate(rev.createdAt)}
+                </p>
+              </div>
+            ))}
           </div>
-
-          {/* Name + Rating */}
-          <div>
-            <h4 className="font-semibold text-gray-900">
-              {rev?.name}
-            </h4>
-            <Rating value={rev?.rating} disabled={true}/>
-          </div>
-        </div>
-
-        {/* Date */}
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-          <Calendar size={14} />
-          <span>{formatDate(rev?.createdAt) }</span>
-        </div>
-
-        {/* Comment */}
-        <p className="text-gray-800 leading-relaxed italic font-medium">
-          "{rev?.comment}"
-        </p>
-      </div>
-    ))}
-  </div>
-</section>
+        </section>
       </main>
+
       <Footer />
     </div>
   );

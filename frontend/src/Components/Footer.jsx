@@ -2,7 +2,7 @@ import React from 'react'
 import {Phone,Mail,Github, Youtube, Instagram, Linkedin} from 'lucide-react'
 const Footer = () => {
   return(
-    <footer className='bg-blue-200 text-gray-300 mt-8'>
+    <footer className='bg-blue-300 text-gray-300 '>
       <div className='max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-6 text-center md:text-left py-5'>
         {/* contact*/}
           <div className='flex-1 min-w-62.5'>

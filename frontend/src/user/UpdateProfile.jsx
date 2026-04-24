@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../Components/Navbar";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
+import { loadUser, removeErrors, removeSuccess, updateProfile } from "../features/products/user/userSlice";
+import toast from 'react-hot-toast'
 const UpdateProfile = () => {
   const { user, error, success, loading,isAuthenticated } = useSelector((state) => state.user);
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,7 +23,17 @@ const UpdateProfile = () => {
         setPreview(user.avatar.url);
       }
     }
-  }, [user]);
+    if(error){
+      toast.error(error || 'Profile update failed!')
+      dispatch(removeErrors())
+    }
+    if(success){
+      toast.success('Profile updated successfully')
+      dispatch(loadUser())
+      navigate('/profile')
+      dispatch(removeSuccess())
+    }
+  }, [user,dispatch,error,success]);
 
   const handleChange = (e) => {
     const file = e.target.files[0];
@@ -50,14 +63,15 @@ const UpdateProfile = () => {
     }
 
     // for verify on console 
-    for(const[key,value] of myform.entries()){
-        console.log(key,value);
-        
-    }    
+    // for(const[key,value] of myform.entries()){
+    //     console.log(key,value);
+    // }    
+
+dispatch(updateProfile(myform))
 
   };
 
-   const navigate=useNavigate();
+   
     useEffect(()=>{
         if(!isAuthenticated){
             navigate('/');
@@ -137,7 +151,7 @@ const UpdateProfile = () => {
               <div className="w-full mt-8">
                 <button
                   type="submit"
-                  className="w-full flex justify-center py-3 px-4 font-bold text-gray-100 rounded-xl shadow-lg shadow-blue-300 text-sm bg-blue-400 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all active:scale-[0.98]"
+                  className="w-full flex justify-center py-3 px-4 font-bold text-gray-100 rounded-xl shadow-lg shadow-blue-300 text-sm bg-blue-400 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all active:scale-[0.98] cursor-pointer"
                 >
                   Save Profile
                 </button>

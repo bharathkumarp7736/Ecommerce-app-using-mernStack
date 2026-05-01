@@ -4,7 +4,6 @@ import {
   Search,
   ShoppingBag,
   ShoppingCart,
-  User,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -14,24 +13,20 @@ import { logout } from "../features/products/user/userSlice";
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
   const navigate = useNavigate();
-
-  const { isAuthenticated, user } = useSelector(
-    (state) => state.user
-  );
-  const { cartItems } = useSelector((state) => state.cart);
-
   const dispatch = useDispatch();
 
-  const [profileDropdownOpen, setProfileDropdownOpen] =
-    useState(false);
+  const { isAuthenticated, user } = useSelector((state) => state.user);
+  const { cartItems } = useSelector((state) => state.cart);
+
+  const isAdmin = user?.role === "admin";
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(
-        `/products?keyword=${encodeURIComponent(searchQuery.trim())}`
-      );
+      navigate(`/products?keyword=${encodeURIComponent(searchQuery)}`);
     } else {
       navigate("/products");
     }
@@ -42,11 +37,10 @@ const Navbar = () => {
     dispatch(logout());
   };
 
-  const isAdmin = user?.role === "admin";
-
   return (
     <nav className="sticky top-0 w-full bg-blue-300 shadow-md z-50">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        
         {/* LOGO */}
         <Link
           to="/"
@@ -58,35 +52,28 @@ const Navbar = () => {
 
         {/* DESKTOP LINKS */}
         <div className="hidden md:flex items-center gap-8">
-          <Link className="font-semibold" to="/">
-            Home
-          </Link>
-          <Link className="font-semibold" to="/products">
-            Products
-          </Link>
-          <Link className="font-semibold" to="/about-us">
-            About Us
-          </Link>
-          <Link className="font-semibold" to="/contact-us">
-            Contact
-          </Link>
+          <Link to="/">Home</Link>
+          <Link to="/products">Products</Link>
+          <Link to="/about-us">About</Link>
+          <Link to="/contact-us">Contact</Link>
         </div>
 
         {/* RIGHT SIDE */}
         <div className="flex items-center gap-4">
+
           {/* SEARCH */}
           <form
             onSubmit={handleSearch}
-            className="hidden sm:flex items-center border border-blue-500 rounded overflow-hidden"
+            className="hidden sm:flex items-center border rounded overflow-hidden"
           >
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="px-3 py-2 text-sm w-40 focus:outline-none"
+              className="px-3 py-1 text-sm focus:outline-none"
               placeholder="Search"
             />
-            <button className="px-3">
-              <Search size={18} />
+            <button className="px-2">
+              <Search size={16} />
             </button>
           </form>
 
@@ -100,80 +87,48 @@ const Navbar = () => {
             )}
           </Link>
 
-          {/* AUTH */}
+          {/* USER */}
           {!isAuthenticated ? (
             <div className="hidden sm:flex gap-3">
-              <Link to="/login">Sign In</Link>
+              <Link to="/login">Login</Link>
               <Link to="/register">Register</Link>
             </div>
           ) : (
             <div className="relative hidden sm:block">
-              <button
-                onClick={() =>
-                  setProfileDropdownOpen((prev) => !prev)
-                }
-              >
+              <button onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}>
                 <img
                   src={user?.avatar?.url}
-                  className="w-10 h-10 rounded-full border-2 border-blue-500"
+                  className="w-10 h-10 rounded-full border"
                 />
               </button>
 
               {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 bg-blue-200 shadow-lg rounded-md w-48 z-50">
+                <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-48 z-50">
                   <div className="p-3 border-b">
                     <p className="font-semibold">{user?.name}</p>
-                    <p className="text-xs text-gray-500">
-                      {user?.email}
-                    </p>
+                    <p className="text-xs text-gray-500">{user?.email}</p>
                   </div>
 
-                  <Link
-                    onClick={() =>
-                      setProfileDropdownOpen(false)
-                    }
-                    to="/profile"
-                    className="block px-4 py-2 hover:bg-blue-300"
-                  >
-                    My Profile
+                  <Link to="/profile" className="block px-4 py-2 hover:bg-gray-100">
+                    Profile
                   </Link>
 
-                  <Link
-                    onClick={() =>
-                      setProfileDropdownOpen(false)
-                    }
-                    to="/orders"
-                    className="block px-4 py-2 hover:bg-blue-300"
-                  >
-                    My Orders
+                  <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">
+                    Orders
                   </Link>
 
-                  {/* ✅ ADMIN ONLY */}
                   {isAdmin && (
                     <Link
-                      onClick={() =>
-                        setProfileDropdownOpen(false)
-                      }
                       to="/admin/orders"
-                      className="block px-4 py-2 text-blue-600 font-bold hover:bg-blue-300"
+                      className="block px-4 py-2 text-blue-600 font-bold hover:bg-gray-100"
                     >
                       Admin Panel
                     </Link>
                   )}
 
-                  <Link
-                    to="/settings"
-                    className="block px-4 py-2 hover:bg-blue-300"
-                  >
-                    Settings
-                  </Link>
-
                   <button
-                    onClick={() => {
-                      handleLogout();
-                      setProfileDropdownOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-blue-300"
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
                   >
                     Logout
                   </button>
@@ -182,33 +137,62 @@ const Navbar = () => {
             </div>
           )}
 
-          {/* MOBILE MENU */}
+          {/* MOBILE BUTTON */}
           <button
             onClick={() => setOpen(!open)}
-            className="md:hidden"
+            className="md:hidden z-50"
           >
             {open ? <X /> : <Menu />}
           </button>
         </div>
       </div>
 
+      {/* BACKDROP */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 bg-black/30 z-40 md:hidden"
+        />
+      )}
+
       {/* MOBILE MENU */}
       <div
-        className={`md:hidden ${
-          open ? "block" : "hidden"
-        } bg-blue-200 p-4`}
-      >
+  className={`fixed top-16 left-0 w-full bg-blue-200 z-50 p-5 md:hidden ${
+    open ? "flex flex-col gap-4" : "hidden"
+  }`}
+>
         <Link onClick={() => setOpen(false)} to="/">
           Home
         </Link>
+
         <Link onClick={() => setOpen(false)} to="/products">
           Products
         </Link>
+
         <Link onClick={() => setOpen(false)} to="/orders">
           Orders
         </Link>
 
-        {/*  ADMIN MOBILE */}
+        {!isAuthenticated ? (
+          <>
+            <Link onClick={() => setOpen(false)} to="/login">
+              Login
+            </Link>
+            <Link onClick={() => setOpen(false)} to="/register">
+              Register
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link onClick={() => setOpen(false)} to="/profile">
+              Profile
+            </Link>
+            <button onClick={handleLogout} className="text-left text-red-500">
+              Logout
+            </button>
+          </>
+        )}
+
         {isAdmin && (
           <Link
             onClick={() => setOpen(false)}

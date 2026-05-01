@@ -14,7 +14,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://your-frontend-url.onrender.com" // replace later when deployed
+    "https://ecommerce-xaej.onrender.com"
   ],
   credentials: true,
 }));

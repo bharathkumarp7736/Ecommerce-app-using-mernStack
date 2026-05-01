@@ -81,36 +81,45 @@ const ProductDetails = () => {
     dispatch(addToCart({ id, quantity }));
   };
 
-  const submitReviewHandler = async (e) => {
-    e.preventDefault();
+const submitReviewHandler = async (e) => {
+  e.preventDefault();
 
-    if (userRating === 0) {
-      toast.error("Please select rating");
-      return;
-    }
+  if (userRating === 0) {
+    toast.error("Please select rating");
+    return;
+  }
 
-    if (!comment.trim()) {
-      toast.error("Please write comment");
-      return;
-    }
+  if (!comment.trim()) {
+    toast.error("Please write comment");
+    return;
+  }
 
-    try {
-      const { data } = await axios.put(`${API}/api/v1/review`, {
+  try {
+    const { data } = await axios.put(
+      `${API}/api/v1/review`,
+      {
         rating: userRating,
         comment,
         productId: id,
-      });
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
 
-      toast.success(data.message);
+    toast.success(data.message);
 
-      setUserRating(0);
-      setComment("");
+    setUserRating(0);
+    setComment("");
 
-      dispatch(getProductDetails(id));
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Review failed");
-    }
-  };
+    dispatch(getProductDetails(id));
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Review failed");
+  }
+};
 
   return (
     <div className="min-h-screen bg-blue-200 ">

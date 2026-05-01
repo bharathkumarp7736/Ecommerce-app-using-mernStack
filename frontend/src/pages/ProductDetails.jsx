@@ -29,7 +29,8 @@ const ProductDetails = () => {
   const [userRating, setUserRating] = useState(0);
   const [comment, setComment] = useState("");
   const [quantity, setQuantity] = useState(1);
-
+  
+  const { isAuthenticated } = useSelector((state) => state.user);
   const { loading, error, product } = useSelector((state) => state.product);
   const {
     loading: cartLoading,
@@ -77,9 +78,16 @@ const ProductDetails = () => {
     setQuantity(quantity - 1);
   };
 
-  const addToCartHandler = () => {
-    dispatch(addToCart({ id, quantity }));
-  };
+
+const addToCartHandler = () => {
+  if (!isAuthenticated) {
+    toast.error("Please login to add items to cart");
+    navigate("/login");
+    return;
+  }
+
+  dispatch(addToCart({ id, quantity }));
+};
 
 const submitReviewHandler = async (e) => {
   e.preventDefault();

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import PageTitle from '../Components/PageTitle';
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
-import CartItem from './cartItem';
+import CartItem from './CartItem';
 import { Trash2 } from 'lucide-react';
 import { clearCart } from '../features/products/cart/cartSlice';
 import { useNavigate } from 'react-router-dom';

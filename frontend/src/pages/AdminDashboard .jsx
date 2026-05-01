@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API = "https://ecommerce-app-using-mernstack.onrender.com";
-
+const API = import.meta.env.VITE_BACKEND_URL;
 const AdminDashboard = () => {
   const [tab, setTab] = useState("dashboard");
 

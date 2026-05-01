@@ -23,7 +23,7 @@ import { calculateDiscount, formatDate } from "../utils/Formater";
 import { addToCart, removeMessage } from "../features/products/cart/cartSlice";
 import axios from "axios";
 
-const API = "https://ecommerce-app-using-mernstack.onrender.com";
+const API = import.meta.env.VITE_BACKEND_URL;
 
 const ProductDetails = () => {
   const [userRating, setUserRating] = useState(0);

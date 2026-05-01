@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API = "https://ecommerce-app-using-mernstack.onrender.com";
+const API = import.meta.env.VITE_BACKEND_URL;
 
 // register api
 export const register = createAsyncThunk(
@@ -12,33 +12,25 @@ export const register = createAsyncThunk(
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true,
       };
-      const { data } = await axios.post(`${API}/api/v1/register`, userData, config);
+
+      const { data } = await axios.post(
+        `${API}/api/v1/register`,
+        userData,
+        config
+      );
+
       return data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || "Registration failed, Please try again later.",
+        error.response?.data || "Registration failed, Please try again later."
       );
     }
-  },
+  }
 );
 
-//get profile
-export const loadUser = createAsyncThunk(
-  "user/loadUser",
-  async (_, { rejectWithValue }) => {
-    try {
-      const { data } = await axios.get(`${API}/api/v1/profile`);
-      return data;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data || "Failed to load user profile",
-      );
-    }
-  },
-);
-
-//login api
+// login api
 export const login = createAsyncThunk(
   "user/login",
   async ({ email, password }, { rejectWithValue }) => {
@@ -47,37 +39,59 @@ export const login = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
       };
 
       const { data } = await axios.post(
         `${API}/api/v1/login`,
         { email, password },
-        config,
+        config
       );
 
       return data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Invalid email or password",
+        error.response?.data || "Invalid email or password"
       );
     }
-  },
+  }
 );
 
-//logout api
+// get profile
+export const loadUser = createAsyncThunk(
+  "user/loadUser",
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`${API}/api/v1/profile`, {
+        withCredentials: true,
+      });
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to load user profile"
+      );
+    }
+  }
+);
+
+// logout api
 export const logout = createAsyncThunk(
   "user/logout",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${API}/api/v1/logout`);
+      const { data } = await axios.get(`${API}/api/v1/logout`, {
+        withCredentials: true,
+      });
+
       return data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Failed to logout");
     }
-  },
+  }
 );
 
-//update profile
+// update profile
 export const updateProfile = createAsyncThunk(
   "user/updateProfile",
   async (userData, { rejectWithValue }) => {
@@ -86,20 +100,23 @@ export const updateProfile = createAsyncThunk(
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true,
       };
+
       const { data } = await axios.put(
         `${API}/api/v1/profile/update`,
         userData,
-        config,
+        config
       );
+
       return data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "profile update failed");
+      return rejectWithValue(error.response?.data || "Profile update failed");
     }
-  },
+  }
 );
 
-//update password
+// update password
 export const updatePassword = createAsyncThunk(
   "user/updatePassword",
   async (password, { rejectWithValue }) => {
@@ -108,20 +125,23 @@ export const updatePassword = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
       };
+
       const { data } = await axios.put(
         `${API}/api/v1/password/update`,
         password,
-        config,
+        config
       );
+
       return data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "password update failed");
+      return rejectWithValue(error.response?.data || "Password update failed");
     }
-  },
+  }
 );
 
-//forgot password
+// forgot password
 export const forgotPassword = createAsyncThunk(
   "user/forgotPassword",
   async ({ email }, { rejectWithValue }) => {
@@ -130,20 +150,23 @@ export const forgotPassword = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
       };
+
       const { data } = await axios.post(
         `${API}/api/v1/password/forgot`,
         { email },
-        config,
+        config
       );
+
       return data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "forgot password failed");
+      return rejectWithValue(error.response?.data || "Forgot password failed");
     }
-  },
+  }
 );
 
-//reset password
+// reset password
 export const resetPassword = createAsyncThunk(
   "user/resetPassword",
   async ({ token, userData }, { rejectWithValue }) => {
@@ -152,25 +175,25 @@ export const resetPassword = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
+        withCredentials: true,
       };
 
       const { data } = await axios.post(
         `${API}/api/v1/reset/${token}`,
         userData,
-        config,
+        config
       );
 
       return data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "reset password failed",
-      );
+      return rejectWithValue(error.response?.data || "Reset password failed");
     }
-  },
+  }
 );
 
 const userSlice = createSlice({
   name: "user",
+
   initialState: {
     user: localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user"))
@@ -181,6 +204,7 @@ const userSlice = createSlice({
     isAuthenticated: localStorage.getItem("user") ? true : false,
     message: null,
   },
+
   reducers: {
     removeErrors: (state) => {
       state.error = null;
@@ -189,8 +213,10 @@ const userSlice = createSlice({
       state.success = false;
     },
   },
+
   extraReducers: (builder) => {
     builder
+      // register
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -199,49 +225,42 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.success = action.payload.success;
-        state.user = action.payload?.user || null;
-        state.isAuthenticated = Boolean(action.payload?.user);
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
 
-        // store in localStorage
         localStorage.setItem("user", JSON.stringify(state.user));
-        localStorage.setItem(
-          "isAuthenticated",
-          JSON.stringify(state.isAuthenticated),
-        );
+        localStorage.setItem("isAuthenticated", JSON.stringify(true));
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.payload || "Registration failed, Please try again later.";
-        state.isAuthenticated = false;
+        state.error = action.payload?.message || "Registration failed";
         state.user = null;
-      });
+        state.isAuthenticated = false;
+      })
 
-    //login user
-    builder
+      // login
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
+        state.error = null;
         state.success = action.payload.success;
-        state.user = action.payload?.user || null;
+        state.user = action.payload.user;
         state.isAuthenticated = true;
 
         localStorage.setItem("user", JSON.stringify(state.user));
+        localStorage.setItem("isAuthenticated", JSON.stringify(true));
       })
-
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
-        state.isAuthenticated = false;
+        state.error = action.payload?.message || "Invalid email or password";
         state.user = null;
-      });
+        state.isAuthenticated = false;
+      })
 
-    //loading user
-    builder
+      // load user
       .addCase(loadUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -249,49 +268,43 @@ const userSlice = createSlice({
       .addCase(loadUser.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.user = action.payload?.user || null;
-        state.isAuthenticated = Boolean(action.payload?.user);
-        // store in localStorage
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+
         localStorage.setItem("user", JSON.stringify(state.user));
-        localStorage.setItem(
-          "isAuthenticated",
-          JSON.stringify(state.isAuthenticated),
-        );
+        localStorage.setItem("isAuthenticated", JSON.stringify(true));
       })
       .addCase(loadUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to load user profile";
         state.user = null;
         state.isAuthenticated = false;
-        if (action.payload?.statusCode == 404) {
-          state.user = null;
-          state.isAuthenticated = false;
-          localStorage.removeItem("user");
-          localStorage.removeItem("isAuthenticated");
-        }
-      });
 
-    //logout user
-    builder
+        localStorage.removeItem("user");
+        localStorage.removeItem("isAuthenticated");
+      })
+
+      // logout
       .addCase(logout.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(logout.fulfilled, (state, action) => {
+      .addCase(logout.fulfilled, (state) => {
         state.loading = false;
         state.user = null;
         state.error = null;
+        state.success = false;
         state.isAuthenticated = false;
+
         localStorage.removeItem("user");
         localStorage.removeItem("isAuthenticated");
       })
       .addCase(logout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to logout";
-      });
+      })
 
-    //update profile
-    builder
+      // update profile
       .addCase(updateProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -300,17 +313,16 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = null;
         state.success = action.payload.success;
-        state.user = action.payload?.user || state.user;
+        state.user = action.payload.user;
+
         localStorage.setItem("user", JSON.stringify(state.user));
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || "profile update failed";
-      });
+        state.error = action.payload?.message || "Profile update failed";
+      })
 
-    //update password
-
-    builder
+      // update password
       .addCase(updatePassword.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -318,15 +330,14 @@ const userSlice = createSlice({
       .addCase(updatePassword.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.success = action.payload?.success;
+        state.success = action.payload.success;
       })
       .addCase(updatePassword.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || "password update failed";
-      });
+        state.error = action.payload?.message || "Password update failed";
+      })
 
-    //forgot password
-    builder
+      // forgot password
       .addCase(forgotPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -334,16 +345,15 @@ const userSlice = createSlice({
       .addCase(forgotPassword.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.success = action.payload?.success;
-        state.message = action.payload?.message;
+        state.success = action.payload.success;
+        state.message = action.payload.message;
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || "password reset failed";
-      });
+        state.error = action.payload?.message || "Forgot password failed";
+      })
 
-    //reset password
-    builder
+      // reset password
       .addCase(resetPassword.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -351,17 +361,16 @@ const userSlice = createSlice({
       .addCase(resetPassword.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        state.success = action.payload?.success;
-        state.message = action.payload?.message;
-        state.user = null;
-        state.isAuthenticated = false;
+        state.success = action.payload.success;
+        state.message = action.payload.message;
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || "password reset failed";
+        state.error = action.payload?.message || "Reset password failed";
       });
   },
 });
 
 export const { removeErrors, removeSuccess } = userSlice.actions;
+
 export default userSlice.reducer;

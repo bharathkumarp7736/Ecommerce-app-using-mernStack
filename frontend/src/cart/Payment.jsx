@@ -3,20 +3,18 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-const API = "https://ecommerce-app-using-mernstack.onrender.com";
+const API = import.meta.env.VITE_BACKEND_URL;
 
 const Payment = () => {
   const navigate = useNavigate();
 
-  const { cartItems } = useSelector((state) => state.cart);
-  const { shippingInfo } = useSelector((state) => state.cart);
+  const { cartItems, shippingInfo } = useSelector((state) => state.cart);
 
   const totalAmount = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0
   );
 
-  // 🔥 LOAD RAZORPAY SCRIPT
   const loadScript = (src) => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -28,9 +26,7 @@ const Payment = () => {
   };
 
   const payHandler = async () => {
-    const res = await loadScript(
-      "https://checkout.razorpay.com/v1/checkout.js"
-    );
+    const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
 
     if (!res) {
       alert("Razorpay SDK failed to load");
@@ -38,13 +34,19 @@ const Payment = () => {
     }
 
     try {
-      // 👉 create order from backend
-      const { data } = await axios.post(`${API}/api/v1/payment/create`, {
-        amount: totalAmount,
-      });
+      const { data } = await axios.post(
+        `${API}/api/v1/payment/create`,
+        { amount: totalAmount },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
 
       const options = {
-        key: import.meta.env.REACT_APP_VITE_RAZORPAY_KEY_ID, // from .env
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: data.order.amount,
         currency: "INR",
         name: "Shopping Hub",
@@ -52,15 +54,27 @@ const Payment = () => {
         order_id: data.order.id,
 
         handler: async function (response) {
-          // 🔥 verify payment
-          await axios.post(`${API}/api/v1/payment/verify`, response);
-
-          // 🔥 create order after payment
-          await axios.post(`${API}/api/v1/new/order`, {
-            shippingAddress: shippingInfo,
-            orderItems: cartItems,
-            totalPrice: totalAmount,
+          await axios.post(`${API}/api/v1/payment/verify`, response, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
           });
+
+          await axios.post(
+            `${API}/api/v1/new/order`,
+            {
+              shippingAddress: shippingInfo,
+              orderItems: cartItems,
+              totalPrice: totalAmount,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              withCredentials: true,
+            }
+          );
 
           navigate("/success");
         },

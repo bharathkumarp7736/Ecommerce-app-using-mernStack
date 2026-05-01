@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API = "https://ecommerce-app-using-mernstack.onrender.com";
+const API = import.meta.env.VITE_BACKEND_URL;
 
 // GET ORDERS
 export const getMyOrders = createAsyncThunk(
